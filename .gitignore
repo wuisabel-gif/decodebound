@@ -16,6 +16,9 @@ env/
 .DS_Store
 *.swp
 
+# Local agent instructions — kept on disk, never committed
+AGENTS.md
+
 # Results: keep committed raw data + figures, ignore scratch
 results/scratch/
 results/raw/*.tmp
