@@ -5,6 +5,7 @@ Subcommands:
   sweep       launch vLLM, run the concurrency sweep, write results/raw/ + run_meta
   analyze     load raw data, print the derived sweep table + the knee
   plot        regenerate the three figures from raw data
+  certify     verdict per series: should you believe this benchmark?
 """
 
 from __future__ import annotations
@@ -111,6 +112,22 @@ def cmd_plot(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_certify(args: argparse.Namespace) -> int:
+    from analysis import certify
+
+    if args.file:
+        series = certify.load_series(args.file)
+        certs = [certify.certify_series(series, label=args.file, rel_ci_target=args.rel_ci)]
+    else:
+        certs = certify.certify_raw(args.raw, mode=args.mode)
+
+    for c in certs:
+        print(certify.render(c))
+        print()
+    # Exit 0 only if every series earned TRUSTED — so CI can gate on it.
+    return 0 if all(c.verdict == "TRUSTED" for c in certs) else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="decodebound", description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
@@ -147,6 +164,21 @@ def build_parser() -> argparse.ArgumentParser:
     pl.add_argument("--raw", default="results/raw")
     pl.add_argument("--figures", default="results/figures")
     pl.set_defaults(func=cmd_plot)
+
+    ct = sub.add_parser(
+        "certify",
+        help="verdict per series: TRUSTED / UNDERPOWERED / NONSTATIONARY "
+             "(exit 0 only if all TRUSTED — usable as a CI gate)",
+    )
+    ct.add_argument("--raw", default="results/raw")
+    ct.add_argument("--mode", choices=("closed", "open"), default="closed",
+                    help="closed = concurrency sweep (raw_c*); open = Poisson rate sweep (raw_r*)")
+    ct.add_argument("--file", default="",
+                    help="certify another harness's export instead: JSON array or "
+                         "single-column CSV of per-request latencies (ms), in time order")
+    ct.add_argument("--rel-ci", type=float, default=0.05, dest="rel_ci",
+                    help="target relative 95%% CI half-width on the mean (default 0.05)")
+    ct.set_defaults(func=cmd_certify)
     return p
 
 

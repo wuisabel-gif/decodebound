@@ -113,10 +113,51 @@ sample independence checked rather than assumed, run length justified by a conve
 | Automatic warmup detection (MSER-5) | ❌ | ❌ | ✅ |
 | Autocorrelation / effective sample size | ❌ | ❌ | ✅ |
 | Allan-variance convergence window | ❌ | ❌ | ✅ |
+| Certifies whether the numbers are trustworthy | ❌ | ❌ | ✅ `certify` |
 | Many backends / datasets / cluster scale | ✅ | ✅ | ❌ |
 
 The claim is not "better benchmark." It's "the same numbers, with the statistical hygiene that
 tells you when to believe them" — and that stats layer is what these tools don't have.
+
+---
+
+## Certify — should you believe your benchmark?
+
+Every harness will print `p99 = 212ms`. None of them will tell you whether that number is a
+statistic or an anecdote. `decodebound certify` turns the stats layer into **verdicts**:
+
+```
+$ decodebound certify --raw results/raw
+── ITL  @ concurrency=8 ──────────────────────────────────
+n=32640 → warmup 160 dropped → steady 32480
+tau_int=4.2 → effective sample size 7733
+mean 24.3 ms ±1.1% (95% CI)   OK
+p99 61.0 ms, tail support 77.3 eff. samples   OK
+drift: halves differ 1.2% (z=0.9)   OK
+VERDICT: TRUSTED
+```
+
+Three failure modes it catches, each of which leaves the reported number looking perfectly normal:
+
+- **UNDERPOWERED** — autocorrelation shrinks n to an *effective* sample size of n/τ_int; a p99
+  backed by 3 effective tail samples is a dice roll. The card reports how many requests a
+  trustworthy run would need.
+- **NONSTATIONARY** — if the run's halves disagree beyond their (ESS-corrected) error bars, or
+  MSER's truncation search hits its cap, conditions changed mid-run: thermal throttling, a noisy
+  neighbor on a shared cloud GPU. The run blends two regimes; no summary of it is meaningful.
+- **Warmup-dominated** — the transient ate so much of the run that "steady state" is guesswork.
+
+It exits non-zero unless every series is TRUSTED, so it works as a **CI gate** for performance
+regressions. And it isn't limited to DecodeBound's own runs — feed it any harness's raw
+per-request latencies and it will referee those too:
+
+```
+$ decodebound certify --file latencies.json   # a JSON array or single-column CSV, in time order
+```
+
+That's the position in the ecosystem: guidellm and aiperf are stopwatches — this is the
+calibration lab. Not a competitor for the load-generation crown; the referee that any of these
+tools' output can be checked against.
 
 ---
 
@@ -153,7 +194,7 @@ its `run_meta.json` is not a result.
 ```
 decodebound/
 ├── harness/             server launch · workloads · concurrency sweep
-├── analysis/            stats (percentiles, ACF, warmup, convergence) · decompose · plots
+├── analysis/            stats (percentiles, ACF, warmup, convergence) · certify · decompose · plots
 ├── results/             raw per-request data + figures (populated by a real run)
 └── report.md            longer write-up
 ```
