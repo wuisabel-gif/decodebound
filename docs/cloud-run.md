@@ -148,8 +148,8 @@ The cleanest option — commit the real data from the pod and push it back. This
 "committed real results" the project is designed around:
 
 ```bash
-git config user.name "Isabella Wu"
-git config user.email "uscauv@gmail.com"
+git config user.name "Your Name"
+git config user.email "you@example.com"
 git add results/ && git commit -m "Add first real sweep: Qwen2.5-7B on RTX 4090"
 git push
 ```
