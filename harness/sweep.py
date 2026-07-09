@@ -264,6 +264,25 @@ async def _run_at_rate(
     return records
 
 
+class ServerDiedError(RuntimeError):
+    """A sweep point saw every request fail — the server is down, so stop early."""
+
+
+def _abort_if_server_dead(records: list[RequestRecord], label: object) -> None:
+    """Stop the sweep if a whole point errored out.
+
+    If the vLLM engine dies mid-sweep (e.g. the T4 FlashAttention crash), every
+    request at the current point fails. Continuing would just hammer a dead server
+    for hours and write all-error parquet. Fail loud instead — the points already
+    written are preserved and usable.
+    """
+    if records and all(r.error is not None for r in records):
+        raise ServerDiedError(
+            f"all {len(records)} requests at {label} failed "
+            f"(e.g. {records[0].error!r}) — server appears dead, aborting sweep."
+        )
+
+
 # --------------------------------------------------------------------------- #
 # Top-level sweep + persistence.
 # --------------------------------------------------------------------------- #
@@ -331,6 +350,7 @@ def run_sweep(
                 )
             )
             written.append(_write_raw(records, out_dir, tag=f"c{c}"))
+            _abort_if_server_dead(records, c)
 
     util_path = sampler.to_parquet(out_dir / "gpu_util.parquet")
     meta = _run_meta(cfg, wl, gpu, concurrencies, vllm_version)
@@ -381,6 +401,7 @@ def run_open_loop_sweep(
                 )
             )
             written.append(_write_raw(records, out_dir, tag=f"r{rate:g}"))
+            _abort_if_server_dead(records, f"rate={rate:g}")
 
     util_path = sampler.to_parquet(out_dir / "gpu_util.parquet")
     meta = _run_meta(cfg, wl, gpu, concurrencies=(), vllm_version=vllm_version)

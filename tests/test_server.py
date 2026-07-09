@@ -19,6 +19,30 @@ def test_launch_command_has_no_removed_flags():
     assert "--max-model-len" in cmd
 
 
+def test_enforce_eager_flag_passthrough():
+    cfg = server.ServerConfig(model="m", extra_args=("--enforce-eager",))
+    assert "--enforce-eager" in server.build_launch_command(cfg)
+    assert "--enforce-eager" not in server.build_launch_command(server.ServerConfig(model="m"))
+
+
+def test_abort_if_server_dead():
+    from harness import sweep
+
+    def rec(i, error):
+        return sweep.RequestRecord(
+            request_id=i, concurrency=4, prompt_len_target=512,
+            prompt_tokens=512, output_tokens=0, ttft_ms=float("nan"), error=error,
+        )
+
+    dead = [rec(i, "conn refused") for i in range(8)]
+    with pytest.raises(sweep.ServerDiedError, match="server appears dead"):
+        sweep._abort_if_server_dead(dead, label="c4")
+
+    # A point with any successful request does not abort.
+    mixed = dead[:-1] + [rec(7, None)]
+    sweep._abort_if_server_dead(mixed, label="c4")  # no raise
+
+
 def test_wait_until_healthy_fails_fast_on_dead_proc():
     # A server process that dies at startup must raise immediately with its exit
     # code, not poll a corpse until the timeout.

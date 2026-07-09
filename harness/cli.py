@@ -45,6 +45,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
         max_model_len=args.max_model_len,
         gpu_memory_utilization=args.gpu_mem_util,
         seed=args.seed,
+        extra_args=(("--enforce-eager",) if args.enforce_eager else ()),
     )
     wl = workload.Workload(
         name=f"{args.prompt_len}in-{args.output_len}out",
@@ -149,6 +150,10 @@ def build_parser() -> argparse.ArgumentParser:
     sw.add_argument("--arrival-rate", default="", dest="arrival_rate",
                     help="comma-separated req/s (e.g. '0.5,1,2,4'): run an open-loop "
                          "Poisson sweep instead of the closed-loop concurrency sweep")
+    sw.add_argument("--enforce-eager", action="store_true", dest="enforce_eager",
+                    help="pass --enforce-eager to vLLM (skip CUDA-graph capture). "
+                         "Needed on older GPUs like the T4 (compute cap 7.5) where the "
+                         "graph/FlashAttention path is unstable over long runs.")
     sw.add_argument("--no-launch", action="store_true",
                     help="assume a server is already running (don't spawn vLLM)")
     sw.add_argument("--yes", "-y", action="store_true", help="skip the run-plan confirmation")
