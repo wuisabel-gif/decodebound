@@ -132,7 +132,8 @@ def build_launch_command(cfg: ServerConfig) -> list[str]:
         str(cfg.gpu_memory_utilization),
         "--seed",
         str(cfg.seed),
-        "--disable-log-requests",
+        # NOTE: no --disable-log-requests — removed in newer vLLM (request logging
+        # is now opt-in via --enable-log-requests, so the default is already quiet).
     ]
     if cfg.max_model_len is not None:
         cmd += ["--max-model-len", str(cfg.max_model_len)]
@@ -140,15 +141,27 @@ def build_launch_command(cfg: ServerConfig) -> list[str]:
     return cmd
 
 
-def wait_until_healthy(base_url: str, timeout_s: float = 600.0, poll_s: float = 2.0) -> None:
+def wait_until_healthy(
+    base_url: str,
+    timeout_s: float = 600.0,
+    poll_s: float = 2.0,
+    proc: subprocess.Popen | None = None,
+) -> None:
     """Block until the server answers /health, or raise on timeout.
 
     vLLM cold start (weights load + CUDA-graph capture) can take minutes, hence the
-    generous default. ``poll_s`` controls how often we probe.
+    generous default. ``poll_s`` controls how often we probe. If ``proc`` is given
+    and exits before the server turns healthy (bad flag, OOM, unsupported GPU),
+    fail immediately instead of polling a corpse for the full timeout.
     """
     deadline = time.monotonic() + timeout_s
     last_err: Exception | None = None
     while time.monotonic() < deadline:
+        if proc is not None and proc.poll() is not None:
+            raise RuntimeError(
+                f"vLLM server process exited with code {proc.returncode} before "
+                "becoming healthy — check its log above for the actual error."
+            )
         try:
             r = httpx.get(f"{base_url}/health", timeout=5.0)
             if r.status_code == 200:
@@ -184,7 +197,7 @@ def serve(cfg: ServerConfig, *, launch: bool = True, startup_timeout_s: float = 
         if launch:
             cmd = build_launch_command(cfg)
             proc = subprocess.Popen(cmd)  # inherits stdio so vLLM logs stream through
-        wait_until_healthy(cfg.base_url, timeout_s=startup_timeout_s)
+        wait_until_healthy(cfg.base_url, timeout_s=startup_timeout_s, proc=proc)
         yield cfg
     finally:
         if proc is not None:
