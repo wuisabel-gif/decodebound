@@ -246,7 +246,7 @@ its `run_meta.json` is not a result.
 ## Repo layout
 
 ```
-decodebound/
+Morpheus/
 ├── harness/             server launch · workloads · concurrency sweep
 ├── analysis/            stats (percentiles, ACF, warmup, convergence) · certify · decompose · plots
 ├── results/             raw per-request data + figures (populated by a real run)

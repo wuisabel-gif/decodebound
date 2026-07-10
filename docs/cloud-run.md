@@ -23,7 +23,7 @@ You need two things:
 1. **The code on GitHub.** The pod will `git clone` it. If you haven't pushed this
    repo yet, create an empty repo on github.com and run, from your laptop:
    ```bash
-   git remote add origin https://github.com/<you>/decodebound.git
+   git remote add origin https://github.com/<you>/Morpheus.git
    git push -u origin master
    ```
    (Ask Claude to do this for you if you want — it won't push without you saying so.)
@@ -59,8 +59,8 @@ In the pod's terminal:
 
 ```bash
 # 1. get the code
-git clone https://github.com/<you>/decodebound.git
-cd decodebound
+git clone https://github.com/<you>/Morpheus.git
+cd Morpheus
 
 # 2. install vLLM (the serving backend) — it pulls a matching torch
 pip install vllm
@@ -120,7 +120,7 @@ vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000 --gpu-memory-utilization 0.90
 
 **Terminal 2 — measure the already-running server (`--no-launch`):**
 ```bash
-cd decodebound
+cd Morpheus
 morpheus sweep --model Qwen/Qwen2.5-7B-Instruct \
   --concurrency 1,2,4,8,16,32 --n-requests 128 --no-launch --yes
 morpheus plot

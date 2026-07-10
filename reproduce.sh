@@ -4,7 +4,7 @@
 # Usage:
 #   ./reproduce.sh --model meta-llama/Llama-3.1-8B-Instruct [--concurrency 1,2,4,8,16,32,48]
 #
-# Halts immediately if no CUDA GPU is present — DecodeBound does not measure CPU.
+# Halts immediately if no CUDA GPU is present — Morpheus does not measure CPU.
 set -euo pipefail
 
 MODEL=""
