@@ -1,4 +1,4 @@
-"""DecodeBound analysis layer — the novel work.
+"""Morpheus analysis layer — the novel work.
 
 Pure functions over per-request latency data: distribution summaries, automatic
 warmup detection, latency autocorrelation, and an Allan-variance-style convergence

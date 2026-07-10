@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DecodeBound — LLM serving characterization</title>
+<title>Morpheus — LLM serving characterization</title>
 <style>
   :root{
     --ink:#141310;            /* warm near-black base */
@@ -169,7 +169,7 @@
 
   <!-- status bar : reads like an instrument header -->
   <div class="status">
-    <span class="mark">Decode<b>Bound</b></span>
+    <span class="mark">Morph<b>eus</b></span>
     <span class="pill">vLLM 0.x</span>
     <span class="sep"></span>
     <span>llama&#8209;3.1&#8209;8b&#8209;instruct</span>
@@ -388,12 +388,12 @@
     <div class="sec-h"><span class="idx">05</span><h2>Certify: should you believe your benchmark?</h2></div>
     <p class="sec-sub">
       Every harness will print &ldquo;p99 = 212&nbsp;ms.&rdquo; None will tell you whether that number is a
-      statistic or an anecdote. <code style="font-family:var(--mono); color:var(--teal)">decodebound certify</code>
+      statistic or an anecdote. <code style="font-family:var(--mono); color:var(--teal)">morpheus certify</code>
       turns the stats layer into verdicts &mdash; and it referees <em>any</em> harness&rsquo;s raw
       latencies, not just its own.
     </p>
     <div class="panel">
-      <p class="panel-h"><span>$ decodebound certify --raw results/raw</span><span class="rd">verdict</span></p>
+      <p class="panel-h"><span>$ morpheus certify --raw results/raw</span><span class="rd">verdict</span></p>
       <div class="card">&#9472;&#9472; ITL  @ concurrency=8 &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 n=32640 &rarr; warmup 160 dropped &rarr; steady 32480
 tau_int=4.2 &rarr; effective sample size 7733    <span class="dim">(not 32480 &mdash; requests are correlated)</span>
@@ -419,8 +419,8 @@ p99 890 ms, tail support 0.3 eff. samples    <span class="low">LOW  (need ~6800 
   </section>
 
   <footer>
-    <div class="repro"><span class="p">$</span> ./reproduce.sh --model Qwen/Qwen2.5-7B-Instruct --sweep concurrency &amp;&amp; decodebound certify --raw results/raw</div>
-    <div>DecodeBound &middot; methodology + harness + committed results &middot; <a href="https://github.com/wuisabel-gif/decodebound">github.com/wuisabel-gif/decodebound</a></div>
+    <div class="repro"><span class="p">$</span> ./reproduce.sh --model Qwen/Qwen2.5-7B-Instruct --sweep concurrency &amp;&amp; morpheus certify --raw results/raw</div>
+    <div>Morpheus &middot; methodology + harness + committed results &middot; <a href="https://github.com/wuisabel-gif/decodebound">github.com/wuisabel-gif/decodebound</a></div>
     <div style="color:var(--mut-2); margin-top:8px">mockup &middot; numbers are illustrative placeholders</div>
   </footer>
 

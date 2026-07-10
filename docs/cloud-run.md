@@ -1,6 +1,6 @@
 # Cloud-GPU runbook — getting your first real result
 
-DecodeBound needs an NVIDIA GPU. This walks you from zero to committed, real numbers
+Morpheus needs an NVIDIA GPU. This walks you from zero to committed, real numbers
 in about **one evening for ~\$2**. No prior cloud experience assumed.
 
 The plan:
@@ -69,7 +69,7 @@ pip install vllm
 pip install -e .
 
 # 4. sanity-check the GPU is visible
-decodebound check-gpu
+morpheus check-gpu
 ```
 
 `check-gpu` should now print your GPU, VRAM, and driver — **not** the "no GPU" halt
@@ -121,10 +121,10 @@ vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000 --gpu-memory-utilization 0.90
 **Terminal 2 — measure the already-running server (`--no-launch`):**
 ```bash
 cd decodebound
-decodebound sweep --model Qwen/Qwen2.5-7B-Instruct \
+morpheus sweep --model Qwen/Qwen2.5-7B-Instruct \
   --concurrency 1,2,4,8,16,32 --n-requests 128 --no-launch --yes
-decodebound plot
-decodebound analyze
+morpheus plot
+morpheus analyze
 ```
 
 (Open a second web terminal on RunPod, or run Terminal 1 inside `tmux`.)
@@ -134,7 +134,7 @@ decodebound analyze
 ## 4 · Look at the result
 
 ```bash
-decodebound analyze        # the derived table + the knee
+morpheus analyze        # the derived table + the knee
 ```
 
 Read the p99 ITL column climb as concurrency rises while p50 barely moves — **that's the

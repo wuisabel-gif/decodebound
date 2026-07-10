@@ -30,15 +30,15 @@ if [[ -z "$MODEL" ]]; then
 fi
 
 echo "==> Checking for a CUDA GPU"
-decodebound check-gpu   # exits non-zero (and set -e halts) if no GPU
+morpheus check-gpu   # exits non-zero (and set -e halts) if no GPU
 
 echo "==> Sweep ($SWEEP) on $MODEL via $BACKEND: $CONCURRENCY"
-decodebound sweep --model "$MODEL" --concurrency "$CONCURRENCY" --raw "$RAW" --yes
+morpheus sweep --model "$MODEL" --concurrency "$CONCURRENCY" --raw "$RAW" --yes
 
 echo "==> Regenerating figures"
-decodebound plot --raw "$RAW" --figures "$FIG"
+morpheus plot --raw "$RAW" --figures "$FIG"
 
 echo "==> Derived sweep table"
-decodebound analyze --raw "$RAW"
+morpheus analyze --raw "$RAW"
 
 echo "Done. Raw data in $RAW (with run_meta.json); figures in $FIG."

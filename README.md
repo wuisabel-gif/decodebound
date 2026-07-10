@@ -1,4 +1,4 @@
-# DecodeBound
+# Morpheus
 
 **A reproducible harness for characterizing LLM *serving* performance.**
 
@@ -84,11 +84,11 @@ The credibility *is* the product. This harness refuses to report a single averag
   `run_meta.json`. The roofline claims are measured, not asserted.
 - **Coordinated omission, addressed.** A closed-loop worker pool slows its arrivals
   whenever the server slows down, silently absorbing queueing delay and understating the
-  tail. `decodebound sweep --arrival-rate 0.5,1,2,4` runs an **open-loop Poisson sweep**
+  tail. `morpheus sweep --arrival-rate 0.5,1,2,4` runs an **open-loop Poisson sweep**
   instead: arrival times are pre-drawn (seeded, reproducible) and never conditioned on
   completions, so queueing delay lands in TTFT/ITL where it belongs. Closed loop answers
   "throughput at a pinned batch size"; open loop is the mode to trust for tail-latency
-  claims. Analyze with `decodebound analyze --mode open`.
+  claims. Analyze with `morpheus analyze --mode open`.
 
 This methodology comes from a background in stochastic-process characterization (state
 estimation / Allan-variance analysis), applied here to inference serving.
@@ -97,15 +97,15 @@ estimation / Allan-variance analysis), applied here to inference serving.
 
 ## How it compares
 
-Mature harnesses already exist, and they beat DecodeBound on **breadth** — backends, datasets,
+Mature harnesses already exist, and they beat Morpheus on **breadth** — backends, datasets,
 traffic models, cluster orchestration. [guidellm](https://github.com/vllm-project/guidellm) and
 NVIDIA [aiperf](https://github.com/ai-dynamo/aiperf) are the reference tools to reach for if you
-need many backends or SLO-driven sweeps out of the box. DecodeBound doesn't compete on that
+need many backends or SLO-driven sweeps out of the box. Morpheus doesn't compete on that
 axis. It leans into a narrower one: **treating each sweep point as a stochastic process and
 reporting whether the measurement itself is trustworthy** — warmup removed by a changepoint rule,
 sample independence checked rather than assumed, run length justified by a convergence criterion.
 
-| Capability | guidellm | aiperf | DecodeBound |
+| Capability | guidellm | aiperf | Morpheus |
 |---|:---:|:---:|:---:|
 | Full TTFT/ITL/E2E distributions | ✅ | ✅ | ✅ |
 | Open-loop (Poisson) arrivals | ✅ | ✅ | ✅ |
@@ -124,10 +124,10 @@ tells you when to believe them" — and that stats layer is what these tools don
 ## Certify — should you believe your benchmark?
 
 Every harness will print `p99 = 212ms`. None of them will tell you whether that number is a
-statistic or an anecdote. `decodebound certify` turns the stats layer into **verdicts**:
+statistic or an anecdote. `morpheus certify` turns the stats layer into **verdicts**:
 
 ```
-$ decodebound certify --raw results/raw
+$ morpheus certify --raw results/raw
 ── ITL  @ concurrency=8 ──────────────────────────────────
 n=32640 → warmup 160 dropped → steady 32480
 tau_int=4.2 → effective sample size 7733
@@ -148,11 +148,11 @@ Three failure modes it catches, each of which leaves the reported number looking
 - **Warmup-dominated** — the transient ate so much of the run that "steady state" is guesswork.
 
 It exits non-zero unless every series is TRUSTED, so it works as a **CI gate** for performance
-regressions. And it isn't limited to DecodeBound's own runs — feed it any harness's raw
+regressions. And it isn't limited to Morpheus's own runs — feed it any harness's raw
 per-request latencies and it will referee those too:
 
 ```
-$ decodebound certify --file latencies.json   # a JSON array or single-column CSV, in time order
+$ morpheus certify --file latencies.json   # a JSON array or single-column CSV, in time order
 ```
 
 That's the position in the ecosystem: guidellm and aiperf are stopwatches — this is the
@@ -163,13 +163,13 @@ tools' output can be checked against.
 
 ## Predict — throughput at operating points you didn't run
 
-A sweep measures a handful of concurrencies. `decodebound predict` fits the
+A sweep measures a handful of concurrencies. `morpheus predict` fits the
 **Universal Scalability Law** (throughput = λN / (1 + α(N−1) + βN(N−1)) — α is contention,
 β is coherency) and predicts the points you *didn't* run, with a bootstrap confidence band
 and a hard label for interpolation vs. extrapolation:
 
 ```
-$ decodebound predict --raw results/raw --at 3,6,12,24,32
+$ morpheus predict --raw results/raw --at 3,6,12,24,32
  concurrency  throughput_tok_s  band_lo  band_hi       region
            3             170.9    170.9    174.2 INTERPOLATED
           12             539.5    538.0    539.5 INTERPOLATED

@@ -1,4 +1,4 @@
-"""Statistical core of DecodeBound.
+"""Statistical core of Morpheus.
 
 Every function here is a pure transform over a 1-D sequence of per-request
 measurements (latencies in ms, or per-request throughput). No GPU, no I/O — so
@@ -130,7 +130,7 @@ def detect_warmup(values: ArrayLike, batch_size: int = 5) -> WarmupResult:
     the winning batch boundary is mapped back to original-sample units.
 
     Returns the index at which steady state begins; callers discard ``data[:cutoff]``.
-    This is the only sanctioned way to drop warmup in DecodeBound — never a magic N.
+    This is the only sanctioned way to drop warmup in Morpheus — never a magic N.
     """
     arr = _as_clean_array(values)
     n = arr.size

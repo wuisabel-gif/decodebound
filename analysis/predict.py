@@ -16,7 +16,7 @@ Two ideas, borrowed and adapted:
   Unlike a blind polynomial it extrapolates with a physical basis, and the throughput-
   maximizing concurrency has a closed form: ``N* = sqrt((1-alpha)/beta)``.
 
-* **Band = nonparametric bootstrap over the raw per-request data.** DecodeBound keeps
+* **Band = nonparametric bootstrap over the raw per-request data.** Morpheus keeps
   thousands of per-request timings behind each point, so instead of a fragile 5-point
   covariance we resample requests within each point, re-aggregate, re-fit, and take the
   percentile band of the resulting family of curves. The band correctly widens where

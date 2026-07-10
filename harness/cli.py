@@ -1,4 +1,4 @@
-"""Command-line entry point: ``decodebound <subcommand>``.
+"""Command-line entry point: ``morpheus <subcommand>``.
 
 Subcommands:
   check-gpu   detect the GPU/driver, or print the halt message and exit non-zero
@@ -25,7 +25,7 @@ def cmd_check_gpu(_: argparse.Namespace) -> int:
     info = server.detect_gpu()
     if info is None:
         print(
-            "No CUDA GPU detected. DecodeBound will not fall back to CPU.\n"
+            "No CUDA GPU detected. Morpheus will not fall back to CPU.\n"
             "Rent a cloud GPU and rerun; only the serving backend changes.",
             file=sys.stderr,
         )
@@ -155,7 +155,7 @@ def cmd_predict(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="decodebound", description=__doc__)
+    p = argparse.ArgumentParser(prog="morpheus", description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
 
     sub.add_parser("check-gpu", help="detect GPU/driver or halt").set_defaults(func=cmd_check_gpu)

@@ -16,7 +16,7 @@ answers three questions about a per-request latency series and issues a verdict:
 
 Verdicts: NONSTATIONARY > UNDERPOWERED > TRUSTED (worst wins).
 
-Works on DecodeBound raw parquet *or* any other harness's export via
+Works on Morpheus raw parquet *or* any other harness's export via
 :func:`load_series` (a JSON list or single-column CSV of latencies in time order) —
 a companion to guidellm/aiperf, not a competitor.
 """
@@ -197,7 +197,7 @@ def load_series(path: Path | str) -> np.ndarray:
 
 
 def certify_raw(raw_dir: Path | str, *, mode: str = "closed") -> list[Certification]:
-    """Certify every sweep point in a DecodeBound raw directory (TTFT + ITL each)."""
+    """Certify every sweep point in a Morpheus raw directory (TTFT + ITL each)."""
     from analysis import decompose
 
     if mode == "open":

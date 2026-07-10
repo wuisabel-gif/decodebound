@@ -83,7 +83,7 @@ def require_gpu() -> GpuInfo:
     if info is None:
         raise NoGPUError(
             "No CUDA GPU detected (nvidia-smi unavailable).\n"
-            "DecodeBound measures GPU serving and refuses to fall back to CPU — the\n"
+            "Morpheus measures GPU serving and refuses to fall back to CPU — the\n"
             "numbers would be meaningless. Rent a cloud GPU (a 4090/A100 hour is cheap);\n"
             "only the serving backend changes, the rest of the repo is identical.\n"
             "See AGENTS.md > 'Hardware target' for the scaling rules."

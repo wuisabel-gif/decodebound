@@ -9,7 +9,7 @@ results/
 ```
 
 It is intentionally **empty right now** — no run has been executed on a GPU yet, and
-DecodeBound never commits fabricated or CPU-fallback numbers. Populate it with:
+Morpheus never commits fabricated or CPU-fallback numbers. Populate it with:
 
 ```bash
 ./reproduce.sh --model <hf-model-id>

@@ -1,4 +1,4 @@
-# DecodeBound — longer write-up
+# Morpheus — longer write-up
 
 > Companion to `README.md`. Write the prose here from real numbers once a sweep has
 > run; until then this is the skeleton, with every quantitative claim left as a
@@ -40,7 +40,7 @@ seed). Aggregates and figures are derived from `results/raw/`, never hand-edited
 
 ## 3. Results
 
-> Replace each `‹measured›` with a value from `decodebound analyze` and the committed
+> Replace each `‹measured›` with a value from `morpheus analyze` and the committed
 > figures. Do not paste the README's illustrative placeholders here.
 
 ### 3.1 Prefill vs. decode (single stream)
